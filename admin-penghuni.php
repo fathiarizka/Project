@@ -9,40 +9,47 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 $pesan = "";
 
-// 1. Proses Tambah Penghuni + Otomatis Ubah Status Kamar jadi 'Terisi'
+// 1. Proses Tambah Penghuni + Akun Login Pribadi
 if (isset($_POST['tambah_penghuni'])) {
     $nama      = mysqli_real_escape_string($conn, $_POST['nama']);
+    $username  = mysqli_real_escape_string($conn, $_POST['username']);
+    $password  = mysqli_real_escape_string($conn, $_POST['password']);
     $no_hp     = mysqli_real_escape_string($conn, $_POST['no_hp']);
     $tgl_masuk = mysqli_real_escape_string($conn, $_POST['tgl_masuk']);
     $id_kamar  = (int) $_POST['id_kamar'];
 
-    mysqli_query($conn, "INSERT INTO penghuni (nama, no_hp, tgl_masuk, id_kamar) VALUES ('$nama', '$no_hp', '$tgl_masuk', $id_kamar)");
-    mysqli_query($conn, "UPDATE kamar SET status = 'Terisi' WHERE id_kamar = $id_kamar");
-
-    $pesan = "<div style='background:#dcfce7; color:#15803d; padding:12px 16px; border-radius:10px; margin-bottom:18px; font-weight:600;'>Penghuni $nama berhasil ditambahkan & status kamar otomatis menjadi Terisi!</div>";
+    $cek_user = mysqli_query($conn, "SELECT * FROM penghuni WHERE username = '$username'");
+    if (mysqli_num_rows($cek_user) > 0) {
+        $pesan = "<div style='background:#fee2e2; color:#dc2626; padding:12px 16px; border-radius:10px; margin-bottom:18px; font-weight:600;'>Username '$username' sudah dipakai penghuni lain!</div>";
+    } else {
+        mysqli_query($conn, "INSERT INTO penghuni (nama, username, password, no_hp, tgl_masuk, id_kamar) VALUES ('$nama', '$username', '$password', '$no_hp', '$tgl_masuk', $id_kamar)");
+        mysqli_query($conn, "UPDATE kamar SET status = 'Terisi' WHERE id_kamar = $id_kamar");
+        $pesan = "<div style='background:#dcfce7; color:#15803d; padding:12px 16px; border-radius:10px; margin-bottom:18px; font-weight:600;'>Penghuni $nama (username: $username) berhasil ditambahkan!</div>";
+    }
 }
 
-// 2. Proses Edit Data Penghuni + Sinkronisasi Status Kamar jika Pindah Kamar
+// 2. Proses Edit Data & Password Penghuni
 if (isset($_POST['edit_penghuni'])) {
     $id_penghuni   = (int) $_POST['id_penghuni'];
     $nama          = mysqli_real_escape_string($conn, $_POST['nama']);
+    $username      = mysqli_real_escape_string($conn, $_POST['username']);
+    $password      = mysqli_real_escape_string($conn, $_POST['password']);
     $no_hp         = mysqli_real_escape_string($conn, $_POST['no_hp']);
     $tgl_masuk     = mysqli_real_escape_string($conn, $_POST['tgl_masuk']);
     $id_kamar_lama = (int) $_POST['id_kamar_lama'];
     $id_kamar_baru = (int) $_POST['id_kamar_baru'];
 
-    mysqli_query($conn, "UPDATE penghuni SET nama = '$nama', no_hp = '$no_hp', tgl_masuk = '$tgl_masuk', id_kamar = $id_kamar_baru WHERE id_penghuni = $id_penghuni");
+    mysqli_query($conn, "UPDATE penghuni SET nama = '$nama', username = '$username', password = '$password', no_hp = '$no_hp', tgl_masuk = '$tgl_masuk', id_kamar = $id_kamar_baru WHERE id_penghuni = $id_penghuni");
 
-    // Jika penghuni pindah kamar, kamar lama jadi 'Kosong' dan kamar baru jadi 'Terisi'
     if ($id_kamar_lama !== $id_kamar_baru) {
         mysqli_query($conn, "UPDATE kamar SET status = 'Kosong' WHERE id_kamar = $id_kamar_lama");
         mysqli_query($conn, "UPDATE kamar SET status = 'Terisi' WHERE id_kamar = $id_kamar_baru");
     }
 
-    $pesan = "<div style='background:#dcfce7; color:#15803d; padding:12px 16px; border-radius:10px; margin-bottom:18px; font-weight:600;'>Data penghuni $nama berhasil diperbarui!</div>";
+    $pesan = "<div style='background:#dcfce7; color:#15803d; padding:12px 16px; border-radius:10px; margin-bottom:18px; font-weight:600;'>Data & akun login $nama berhasil diperbarui!</div>";
 }
 
-// 3. Proses Hapus Penghuni + Otomatis Kembalikan Status Kamar jadi 'Kosong'
+// 3. Proses Hapus Penghuni
 if (isset($_GET['hapus']) && isset($_GET['kamar'])) {
     $id_penghuni = (int) $_GET['hapus'];
     $id_kamar    = (int) $_GET['kamar'];
@@ -54,10 +61,7 @@ if (isset($_GET['hapus']) && isset($_GET['kamar'])) {
     exit;
 }
 
-// Ambil data penghuni digabung dengan info kamar
-$data_penghuni = mysqli_query($conn, "SELECT penghuni.*, kamar.nomor_kamar, kamar.harga_sewa FROM penghuni JOIN kamar ON penghuni.id_kamar = kamar.id_kamar ORDER BY kamar.nomor_kamar ASC");
-
-// Ambil daftar kamar kosong untuk modal Tambah dan modal Edit
+$data_penghuni       = mysqli_query($conn, "SELECT penghuni.*, kamar.nomor_kamar, kamar.harga_sewa FROM penghuni JOIN kamar ON penghuni.id_kamar = kamar.id_kamar ORDER BY kamar.nomor_kamar ASC");
 $kamar_kosong_tambah = mysqli_query($conn, "SELECT * FROM kamar WHERE status = 'Kosong' ORDER BY nomor_kamar ASC");
 $kamar_kosong_edit   = mysqli_query($conn, "SELECT * FROM kamar WHERE status = 'Kosong' ORDER BY nomor_kamar ASC");
 ?>
@@ -69,7 +73,7 @@ $kamar_kosong_edit   = mysqli_query($conn, "SELECT * FROM kamar WHERE status = '
     <link rel="stylesheet" href="css/style.css">
     <style>
         .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(15,23,42,0.55); justify-content:center; align-items:center; }
-        .modal-content { background:white; padding:28px; border-radius:16px; width:100%; max-width:440px; }
+        .modal-content { background:white; padding:28px; border-radius:16px; width:100%; max-width:460px; max-height:90vh; overflow-y:auto; }
         .btn-danger { text-decoration:none; font-size:12.5px; display:inline-block; }
     </style>
 </head>
@@ -99,10 +103,10 @@ $kamar_kosong_edit   = mysqli_query($conn, "SELECT * FROM kamar WHERE status = '
                         <tr>
                             <th>No</th>
                             <th>Nama Penghuni</th>
+                            <th>Username Login</th>
                             <th>Nomor Kamar</th>
                             <th>Tarif Sewa</th>
                             <th>No. HP</th>
-                            <th>Tgl Masuk</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -111,15 +115,17 @@ $kamar_kosong_edit   = mysqli_query($conn, "SELECT * FROM kamar WHERE status = '
                         <tr>
                             <td><?= $no++; ?></td>
                             <td><strong><?= htmlspecialchars($row['nama']); ?></strong></td>
+                            <td><code style="background:#f1f5f9; padding:3px 8px; border-radius:6px;"><?= htmlspecialchars($row['username']); ?></code></td>
                             <td><?= htmlspecialchars($row['nomor_kamar']); ?></td>
                             <td>Rp <?= number_format($row['harga_sewa'], 0, ',', '.'); ?></td>
                             <td><?= htmlspecialchars($row['no_hp']); ?></td>
-                            <td><?= htmlspecialchars($row['tgl_masuk']); ?></td>
                             <td style="display:flex; gap:6px; align-items:center;">
                                 <button class="btn-primary" style="padding:6px 12px; font-size:12.5px;"
                                     onclick="bukaEditPenghuni(
                                         <?= $row['id_penghuni']; ?>,
                                         '<?= htmlspecialchars($row['nama'], ENT_QUOTES); ?>',
+                                        '<?= htmlspecialchars($row['username'], ENT_QUOTES); ?>',
+                                        '<?= htmlspecialchars($row['password'], ENT_QUOTES); ?>',
                                         '<?= htmlspecialchars($row['no_hp'], ENT_QUOTES); ?>',
                                         '<?= htmlspecialchars($row['tgl_masuk'], ENT_QUOTES); ?>',
                                         <?= $row['id_kamar']; ?>,
@@ -128,7 +134,7 @@ $kamar_kosong_edit   = mysqli_query($conn, "SELECT * FROM kamar WHERE status = '
                                     )">
                                     Edit
                                 </button>
-                                <a href="admin-penghuni.php?hapus=<?= $row['id_penghuni']; ?>&kamar=<?= $row['id_kamar']; ?>" class="btn-danger" onclick="return confirm('Hapus penghuni <?= htmlspecialchars($row['nama'], ENT_QUOTES); ?>? Status kamar akan otomatis kembali Kosong.')">Hapus / Keluar</a>
+                                <a href="admin-penghuni.php?hapus=<?= $row['id_penghuni']; ?>&kamar=<?= $row['id_kamar']; ?>" class="btn-danger" onclick="return confirm('Hapus penghuni <?= htmlspecialchars($row['nama'], ENT_QUOTES); ?>? Status kamar akan otomatis kembali Kosong.')">Hapus</a>
                             </td>
                         </tr>
                         <?php endwhile; ?>
@@ -146,6 +152,16 @@ $kamar_kosong_edit   = mysqli_query($conn, "SELECT * FROM kamar WHERE status = '
                 <div class="form-group">
                     <label>Nama Lengkap Penghuni</label>
                     <input type="text" name="nama" placeholder="Contoh: Budi Santoso" required>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Username Login</label>
+                        <input type="text" name="username" placeholder="Contoh: budi" required>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>Password Login</label>
+                        <input type="text" name="password" value="12345" required>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Pilih Kamar (Hanya Kamar Kosong)</label>
@@ -177,7 +193,7 @@ $kamar_kosong_edit   = mysqli_query($conn, "SELECT * FROM kamar WHERE status = '
     <!-- Modal Edit Penghuni -->
     <div id="modalEditPenghuni" class="modal">
         <div class="modal-content">
-            <h2 style="margin-bottom:18px; font-size:20px;">Edit Data Penghuni</h2>
+            <h2 style="margin-bottom:18px; font-size:20px;">Edit Data & Akun Penghuni</h2>
             <form method="POST">
                 <input type="hidden" name="id_penghuni" id="edit_id_penghuni">
                 <input type="hidden" name="id_kamar_lama" id="edit_id_kamar_lama">
@@ -186,8 +202,18 @@ $kamar_kosong_edit   = mysqli_query($conn, "SELECT * FROM kamar WHERE status = '
                     <label>Nama Lengkap Penghuni</label>
                     <input type="text" name="nama" id="edit_nama" required>
                 </div>
+                <div style="display:flex; gap:10px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Username Login</label>
+                        <input type="text" name="username" id="edit_username" required>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>Password Login</label>
+                        <input type="text" name="password" id="edit_password" required>
+                    </div>
+                </div>
                 <div class="form-group">
-                    <label>Kamar Ditempati (Kamar Saat Ini / Kamar Kosong)</label>
+                    <label>Kamar Ditempati</label>
                     <select name="id_kamar_baru" id="edit_id_kamar_baru" required>
                         <option value="" id="opsiKamarSaatIni"></option>
                         <?php while ($km2 = mysqli_fetch_assoc($kamar_kosong_edit)): ?>
@@ -214,10 +240,12 @@ $kamar_kosong_edit   = mysqli_query($conn, "SELECT * FROM kamar WHERE status = '
     </div>
 
     <script>
-        function bukaEditPenghuni(id, nama, noHp, tglMasuk, idKamar, nomorKamar, hargaSewa) {
+        function bukaEditPenghuni(id, nama, username, password, noHp, tglMasuk, idKamar, nomorKamar, hargaSewa) {
             document.getElementById('edit_id_penghuni').value = id;
             document.getElementById('edit_id_kamar_lama').value = idKamar;
             document.getElementById('edit_nama').value = nama;
+            document.getElementById('edit_username').value = username;
+            document.getElementById('edit_password').value = password;
             document.getElementById('edit_no_hp').value = noHp;
             document.getElementById('edit_tgl_masuk').value = tglMasuk;
 
