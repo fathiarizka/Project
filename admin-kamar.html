@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Data Kamar - KOSKU</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <aside class="sidebar">
+            <h2>KOSKU</h2>
+            <a href="admin-dashboard.html">Dashboard</a>
+            <a href="admin-kamar.html" class="active">Data Kamar</a>
+            <a href="admin-penghuni.html">Data Penghuni</a>
+            <a href="admin-pembayaran.html">Pembayaran</a>
+            <a href="admin-laporan.html">Laporan</a>
+            <a href="index.html">Logout</a>
+        </aside>
+
+        <main class="main-content">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h1>Data Kamar</h1>
+                <button class="btn-primary" onclick="alert('Form Tambah Kamar Baru')">+ Tambah Kamar</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nomor Kamar</th>
+                            <th>Harga Sewa</th>
+                            <th>Fasilitas</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Kamar 01</td>
+                            <td>Rp 750.000</td>
+                            <td>AC, WiFi</td>
+                            <td style="color:#27ae60; font-weight:bold;">Terisi</td>
+                            <td><button class="btn-primary" style="padding:5px 10px; font-size:12px;">Edit</button></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Kamar 02</td>
+                            <td>Rp 750.000</td>
+                            <td>AC, WiFi</td>
+                            <td style="color:#e67e22; font-weight:bold;">Kosong</td>
+                            <td><button class="btn-primary" style="padding:5px 10px; font-size:12px;">Edit</button></td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Kamar 03</td>
+                            <td>Rp 750.000</td>
+                            <td>AC, WiFi</td>
+                            <td style="color:#e67e22; font-weight:bold;">Kosong</td>
+                            <td><button class="btn-primary" style="padding:5px 10px; font-size:12px;">Edit</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="margin-top:15px; font-size:13px; color:#7f8c8d;">Menampilkan 1-3 dari 3 data</p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

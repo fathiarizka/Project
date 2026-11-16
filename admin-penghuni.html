@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Data Penghuni - KOSKU</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <aside class="sidebar">
+            <h2>KOSKU</h2>
+            <a href="admin-dashboard.html">Dashboard</a>
+            <a href="admin-kamar.html">Data Kamar</a>
+            <a href="admin-penghuni.html" class="active">Data Penghuni</a>
+            <a href="admin-pembayaran.html">Pembayaran</a>
+            <a href="admin-laporan.html">Laporan</a>
+            <a href="index.html">Logout</a>
+        </aside>
+
+        <main class="main-content">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h1>Data Penghuni</h1>
+                <button class="btn-primary" onclick="alert('Form Tambah Penghuni Baru')">+ Tambah Penghuni</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama</th>
+                            <th>Nomor Kamar</th>
+                            <th>No. HP</th>
+                            <th>Tgl Masuk</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Siti Aminah</td>
+                            <td>01</td>
+                            <td>0812-1111-2222</td>
+                            <td>01/01/2025</td>
+                            <td><button class="btn-primary" style="padding:5px 10px; font-size:12px;">Edit</button></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Siti Nurbaya</td>
+                            <td>02</td>
+                            <td>0813-3333-4444</td>
+                            <td>01/01/2025</td>
+                            <td><button class="btn-primary" style="padding:5px 10px; font-size:12px;">Edit</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
