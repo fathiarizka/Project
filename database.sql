@@ -1,7 +1,7 @@
 CREATE DATABASE IF NOT EXISTS db_kosku;
 USE db_kosku;
 
--- 1. Tabel Users (Admin & Penghuni)
+-- 1. Tabel Users (Khusus Admin)
 CREATE TABLE IF NOT EXISTS users (
     id_user INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -10,8 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 INSERT IGNORE INTO users (username, password, role) VALUES 
-('admin', 'admin123', 'admin'),
-('penghuni', 'penghuni123', 'penghuni');
+('admin', 'admin123', 'admin');
 
 -- 2. Tabel Kamar
 CREATE TABLE IF NOT EXISTS kamar (
@@ -27,19 +26,21 @@ INSERT IGNORE INTO kamar (nomor_kamar, harga_sewa, fasilitas, status) VALUES
 ('A02', 600000, 'AC, WiFi', 'Terisi'),
 ('A03', 750000, 'AC, WiFi, Kamar Mandi Dalam', 'Kosong');
 
--- 3. Tabel Penghuni
+-- 3. Tabel Penghuni (Dengan Akun Login Pribadi)
 CREATE TABLE IF NOT EXISTS penghuni (
     id_penghuni INT AUTO_INCREMENT PRIMARY KEY,
     nama VARCHAR(100) NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL DEFAULT '12345',
     no_hp VARCHAR(20) NOT NULL,
     tgl_masuk DATE NOT NULL,
     id_kamar INT NOT NULL,
     FOREIGN KEY (id_kamar) REFERENCES kamar(id_kamar) ON DELETE CASCADE
 );
 
-INSERT IGNORE INTO penghuni (id_penghuni, nama, no_hp, tgl_masuk, id_kamar) VALUES
-(1, 'Rina', '0812-1111-2222', '2026-01-01', 1),
-(2, 'Siti Aminah', '0813-3333-4444', '2026-02-01', 2);
+INSERT IGNORE INTO penghuni (id_penghuni, nama, username, password, no_hp, tgl_masuk, id_kamar) VALUES
+(1, 'Rina', 'rina', '12345', '0812-1111-2222', '2026-01-01', 1),
+(2, 'Siti Aminah', 'siti', '12345', '0813-3333-4444', '2026-02-01', 2);
 
 -- 4. Tabel Pembayaran
 CREATE TABLE IF NOT EXISTS pembayaran (
