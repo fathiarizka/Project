@@ -4,6 +4,36 @@
     <meta charset="UTF-8">
     <title>Data Pembayaran - KOSKU</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Style tambahan khusus modal form pembayaran */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 9px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;
+        }
+        .input-otomatis { background-color: #eef2f5; color: #2c3e50; font-weight: bold; }
+        .status-preview {
+            padding: 10px; border-radius: 6px; text-align: center; font-weight: bold; margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <div class="wrapper">
@@ -20,18 +50,20 @@
         <main class="main-content">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h1>Data Pembayaran</h1>
-                <button class="btn-primary" onclick="alert('Form Catat Pembayaran Baru')">+ Catat Pembayaran</button>
+                <button class="btn-primary" onclick="bukaModal()">+ Catat Pembayaran</button>
             </div>
 
             <div class="table-container">
-                <table>
+                <table id="tabelPembayaran">
                     <thead>
                         <tr>
                             <th>No</th>
                             <th>Nama</th>
-                            <th>Nomor Kamar</th>
+                            <th>Kamar</th>
                             <th>Bulan</th>
-                            <th>Jumlah</th>
+                            <th>Tagihan</th>
+                            <th>Dibayar</th>
+                            <th>Metode</th>
                             <th>Tgl Bayar</th>
                             <th>Status</th>
                         </tr>
@@ -41,33 +73,188 @@
                             <td>1</td>
                             <td>Siti Aminah</td>
                             <td>01</td>
-                            <td>Juli</td>
+                            <td>Juli 2026</td>
                             <td>Rp 750.000</td>
-                            <td>05/07/2026</td>
-                            <td style="color:#27ae60; font-weight:bold;">Lunas</td>
+                            <td>Rp 750.000</td>
+                            <td>Transfer Bank</td>
+                            <td>2026-07-05</td>
+                            <td><span class="badge-lunas">Lunas</span></td>
                         </tr>
                         <tr>
                             <td>2</td>
                             <td>Siti Nurbaya</td>
                             <td>02</td>
-                            <td>Juli</td>
+                            <td>Juli 2026</td>
                             <td>Rp 750.000</td>
-                            <td>07/07/2026</td>
-                            <td style="color:#27ae60; font-weight:bold;">Lunas</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Ratu</td>
-                            <td>03</td>
-                            <td>Juli</td>
-                            <td>Rp 800.000</td>
-                            <td>-</td>
-                            <td style="color:#e74c3c; font-weight:bold;">Belum Lunas</td>
+                            <td>Rp 750.000</td>
+                            <td>Tunai</td>
+                            <td>2026-07-07</td>
+                            <td><span class="badge-lunas">Lunas</span></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </main>
     </div>
+
+    <!-- Modal Formulir Pembayaran Semiotomatis -->
+    <div id="modalBayar" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 15px; color: #2c3e50;">Formulir Pembayaran Kos</h2>
+            <form onsubmit="simpanPembayaran(event)">
+                <div class="form-group">
+                    <label>Nama Penghuni (Pilih)</label>
+                    <select id="pilihPenghuni" onchange="isiDataOtomatis()" required>
+                        <option value="">-- Pilih Penghuni --</option>
+                        <option value="Siti Aminah" data-kamar="01" data-tagihan="750000">Siti Aminah</option>
+                        <option value="Siti Nurbaya" data-kamar="02" data-tagihan="750000">Siti Nurbaya</option>
+                        <option value="Rina" data-kamar="A01" data-tagihan="600000">Rina</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Nomor Kamar (Otomatis)</label>
+                        <input type="text" id="noKamar" class="input-otomatis" readonly placeholder="-">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Tagihan Bulanan (Otomatis)</label>
+                        <input type="text" id="tagihanTampil" class="input-otomatis" readonly placeholder="Rp 0">
+                        <input type="hidden" id="tagihanAngka" value="0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Bulan Tagihan</label>
+                    <select id="bulanTagihan" required>
+                        <option value="Juli 2026">Juli 2026</option>
+                        <option value="Agustus 2026">Agustus 2026</option>
+                        <option value="September 2026">September 2026</option>
+                        <option value="Oktober 2026">Oktober 2026</option>
+                        <option value="November 2026">November 2026</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Jumlah Pembayaran (Input Admin)</label>
+                    <input type="number" id="jumlahBayar" oninput="cekStatusOtomatis()" placeholder="Contoh: 600000" required>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Tanggal Pembayaran</label>
+                        <input type="date" id="tglBayar" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Metode Pembayaran</label>
+                        <select id="metodeBayar" required>
+                            <option value="Transfer Bank">Transfer Bank</option>
+                            <option value="Tunai">Tunai</option>
+                            <option value="E-Wallet / QRIS">E-Wallet / QRIS</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Status Otomatis -->
+                <div id="boxStatus" class="status-preview" style="background: #f1f2f6; color: #555;">
+                    Status Pembayaran: Menunggu Input...
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="button" onclick="tutupModal()" style="flex:1; padding:10px; border:none; border-radius:6px; cursor:pointer;">Batal</button>
+                    <button type="submit" class="btn-primary" style="flex:2;">Simpan Pembayaran</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function bukaModal() {
+            document.getElementById('modalBayar').style.display = 'flex';
+        }
+        function tutupModal() {
+            document.getElementById('modalBayar').style.display = 'none';
+        }
+
+        // 1. Ambil Nomor Kamar & Tagihan secara otomatis saat nama dipilih
+        function isiDataOtomatis() {
+            const select = document.getElementById('pilihPenghuni');
+            const opsi = select.options[select.selectedIndex];
+            const kamar = opsi.getAttribute('data-kamar') || '-';
+            const tagihan = parseInt(opsi.getAttribute('data-tagihan')) || 0;
+
+            document.getElementById('noKamar').value = kamar;
+            document.getElementById('tagihanAngka').value = tagihan;
+            document.getElementById('tagihanTampil').value = tagihan > 0 ? 'Rp ' + tagihan.toLocaleString('id-ID') : 'Rp 0';
+            cekStatusOtomatis();
+        }
+
+        // 2. Algoritma penentu Status Lunas / Belum Lunas otomatis
+        function cekStatusOtomatis() {
+            const tagihan = parseInt(document.getElementById('tagihanAngka').value) || 0;
+            const bayar = parseInt(document.getElementById('jumlahBayar').value) || 0;
+            const box = document.getElementById('boxStatus');
+
+            if (tagihan === 0 || bayar === 0) {
+                box.style.background = '#f1f2f6';
+                box.style.color = '#555';
+                box.innerText = 'Status Pembayaran: Menunggu Input...';
+            } else if (bayar >= tagihan) {
+                box.style.background = '#d4edda';
+                box.style.color = '#155724';
+                box.innerText = 'Status Pembayaran: LUNAS';
+            } else {
+                const kurang = tagihan - bayar;
+                box.style.background = '#f8d7da';
+                box.style.color = '#721c24';
+                box.innerText = 'Status Pembayaran: BELUM LUNAS (Kurang Rp ' + kurang.toLocaleString('id-ID') + ')';
+            }
+        }
+
+        // 3. Validasi anti-duplikasi & simpan ke tabel
+        function simpanPembayaran(event) {
+            event.preventDefault();
+            const nama = document.getElementById('pilihPenghuni').value;
+            const kamar = document.getElementById('noKamar').value;
+            const bulan = document.getElementById('bulanTagihan').value;
+            const tagihan = parseInt(document.getElementById('tagihanAngka').value);
+            const bayar = parseInt(document.getElementById('jumlahBayar').value);
+            const tgl = document.getElementById('tglBayar').value;
+            const metode = document.getElementById('metodeBayar').value;
+
+            // Cek agar tidak tercatat dua kali untuk penghuni & bulan yang sama
+            const tbody = document.querySelector('#tabelPembayaran tbody');
+            const rows = tbody.querySelectorAll('tr');
+            for (let row of rows) {
+                const namaTabel = row.cells[1].innerText;
+                const bulanTabel = row.cells[3].innerText;
+                if (namaTabel === nama && bulanTabel === bulan) {
+                    alert('Gagal! Pembayaran atas nama ' + nama + ' untuk bulan ' + bulan + ' sudah tercatat sebelumnya.');
+                    return;
+                }
+            }
+
+            const statusBadge = bayar >= tagihan
+                ? '<span class="badge-lunas">Lunas</span>'
+                : '<span class="badge-belum">Belum Lunas</span>';
+
+            const rowBaru = tbody.insertRow();
+            rowBaru.innerHTML = `
+                <td>${rows.length + 1}</td>
+                <td>${nama}</td>
+                <td>${kamar}</td>
+                <td>${bulan}</td>
+                <td>Rp ${tagihan.toLocaleString('id-ID')}</td>
+                <td>Rp ${bayar.toLocaleString('id-ID')}</td>
+                <td>${metode}</td>
+                <td>${tgl}</td>
+                <td>${statusBadge}</td>
+            `;
+
+            tutupModal();
+            event.target.reset();
+            isiDataOtomatis();
+        }
+    </script>
 </body>
 </html>
