@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Penghuni - KOSKU</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <aside class="sidebar">
+            <h2>KOSKU</h2>
+            <a href="penghuni-dashboard.html" class="active">Dashboard</a>
+            <a href="#tagihan">Tagihan Saya</a>
+            <a href="#riwayat">Riwayat Pembayaran</a>
+            <a href="index.html">Logout</a>
+        </aside>
+
+        <main class="main-content">
+            <h1>Dashboard Penghuni - Siti Aminah</h1>
+            <div class="cards">
+                <div class="card">
+                    <h3>Informasi Kamar</h3>
+                    <p><strong>Nama:</strong> Siti Aminah</p>
+                    <p><strong>Nomor Kamar:</strong> 01</p>
+                    <p><strong>Harga Sewa:</strong> Rp 750.000 / bln</p>
+                </div>
+                <div class="card" id="tagihan">
+                    <h3>Tagihan Bulanan</h3>
+                    <p class="harga">Rp 750.000</p>
+                    <p>Status Tagihan: <strong style="color:#e74c3c;">Belum Lunas (November)</strong></p>
+                </div>
+            </div>
+
+            <div class="table-container" id="riwayat">
+                <h3>Riwayat Pembayaran</h3>
+                <table>
+                    <thead>
+                        <tr><th>Bulan</th><th>Nominal</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Oktober 2026</td><td>Rp 750.000</td><td style="color:#27ae60; font-weight:bold;">Lunas</td></tr>
+                        <tr><td>September 2026</td><td>Rp 750.000</td><td style="color:#27ae60; font-weight:bold;">Lunas</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Data Pembayaran - KOSKU</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <aside class="sidebar">
+            <h2>KOSKU</h2>
+            <a href="admin-dashboard.html">Dashboard</a>
+            <a href="admin-kamar.html">Data Kamar</a>
+            <a href="admin-penghuni.html">Data Penghuni</a>
+            <a href="admin-pembayaran.html" class="active">Pembayaran</a>
+            <a href="admin-laporan.html">Laporan</a>
+            <a href="index.html">Logout</a>
+        </aside>
+
+        <main class="main-content">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h1>Data Pembayaran</h1>
+                <button class="btn-primary" onclick="alert('Form Catat Pembayaran Baru')">+ Catat Pembayaran</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama</th>
+                            <th>Nomor Kamar</th>
+                            <th>Bulan</th>
+                            <th>Jumlah</th>
+                            <th>Tgl Bayar</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Siti Aminah</td>
+                            <td>01</td>
+                            <td>Juli</td>
+                            <td>Rp 750.000</td>
+                            <td>05/07/2026</td>
+                            <td style="color:#27ae60; font-weight:bold;">Lunas</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Siti Nurbaya</td>
+                            <td>02</td>
+                            <td>Juli</td>
+                            <td>Rp 750.000</td>
+                            <td>07/07/2026</td>
+                            <td style="color:#27ae60; font-weight:bold;">Lunas</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Ratu</td>
+                            <td>03</td>
+                            <td>Juli</td>
+                            <td>Rp 800.000</td>
+                            <td>-</td>
+                            <td style="color:#e74c3c; font-weight:bold;">Belum Lunas</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
