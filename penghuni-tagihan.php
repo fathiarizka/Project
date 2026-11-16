@@ -7,8 +7,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'penghuni') {
     exit;
 }
 
-$profil  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT penghuni.*, kamar.nomor_kamar, kamar.harga_sewa FROM penghuni JOIN kamar ON penghuni.id_kamar = kamar.id_kamar LIMIT 1"));
-$tagihan = mysqli_query($conn, "SELECT * FROM pembayaran WHERE id_penghuni = " . (int)$profil['id_penghuni'] . " ORDER BY id_bayar DESC");
+$id_penghuni = (int) $_SESSION['id_penghuni'];
+$profil  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT penghuni.*, kamar.nomor_kamar, kamar.harga_sewa FROM penghuni JOIN kamar ON penghuni.id_kamar = kamar.id_kamar WHERE penghuni.id_penghuni = $id_penghuni"));
+$tagihan = mysqli_query($conn, "SELECT * FROM pembayaran WHERE id_penghuni = $id_penghuni ORDER BY id_bayar DESC");
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -16,10 +17,6 @@ $tagihan = mysqli_query($conn, "SELECT * FROM pembayaran WHERE id_penghuni = " .
     <meta charset="UTF-8">
     <title>Tagihan Saya - KOSKU</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .badge-lunas { background:#d4edda; color:#155724; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold; }
-        .badge-belum { background:#f8d7da; color:#721c24; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold; }
-    </style>
 </head>
 <body>
     <div class="wrapper">
@@ -33,7 +30,7 @@ $tagihan = mysqli_query($conn, "SELECT * FROM pembayaran WHERE id_penghuni = " .
 
         <main class="main-content">
             <h1>Tagihan Saya</h1>
-            <p style="color:#7f8c8d; margin-top:5px;">Kamar <strong><?= htmlspecialchars($profil['nomor_kamar']); ?></strong> — Tarif Bulanan: <strong>Rp <?= number_format($profil['harga_sewa'], 0, ',', '.'); ?></strong></p>
+            <p style="color:#64748b; margin-top:5px;">Kamar <strong><?= htmlspecialchars($profil['nomor_kamar']); ?></strong> &mdash; Tarif Bulanan: <strong>Rp <?= number_format($profil['harga_sewa'], 0, ',', '.'); ?></strong></p>
 
             <div class="table-container">
                 <table>
@@ -73,7 +70,7 @@ $tagihan = mysqli_query($conn, "SELECT * FROM pembayaran WHERE id_penghuni = " .
                         else:
                         ?>
                         <tr>
-                            <td colspan="6" style="text-align:center;">Belum ada catatan tagihan untuk akun ini.</td>
+                            <td colspan="6" style="text-align:center;">Belum ada catatan tagihan untuk akun Anda.</td>
                         </tr>
                         <?php endif; ?>
                     </tbody>

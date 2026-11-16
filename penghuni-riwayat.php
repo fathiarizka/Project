@@ -7,8 +7,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'penghuni') {
     exit;
 }
 
-$profil  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT penghuni.*, kamar.nomor_kamar FROM penghuni JOIN kamar ON penghuni.id_kamar = kamar.id_kamar LIMIT 1"));
-$riwayat = mysqli_query($conn, "SELECT * FROM pembayaran WHERE id_penghuni = " . (int)$profil['id_penghuni'] . " ORDER BY tgl_bayar DESC");
+$id_penghuni = (int) $_SESSION['id_penghuni'];
+$profil  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT penghuni.*, kamar.nomor_kamar FROM penghuni JOIN kamar ON penghuni.id_kamar = kamar.id_kamar WHERE penghuni.id_penghuni = $id_penghuni"));
+$riwayat = mysqli_query($conn, "SELECT * FROM pembayaran WHERE id_penghuni = $id_penghuni ORDER BY tgl_bayar DESC");
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -16,10 +17,6 @@ $riwayat = mysqli_query($conn, "SELECT * FROM pembayaran WHERE id_penghuni = " .
     <meta charset="UTF-8">
     <title>Riwayat Pembayaran - KOSKU</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .badge-lunas { background:#d4edda; color:#155724; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold; }
-        .badge-belum { background:#f8d7da; color:#721c24; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold; }
-    </style>
 </head>
 <body>
     <div class="wrapper">
@@ -33,7 +30,7 @@ $riwayat = mysqli_query($conn, "SELECT * FROM pembayaran WHERE id_penghuni = " .
 
         <main class="main-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h1>Riwayat Pembayaran</h1>
+                <h1>Riwayat Pembayaran - <?= htmlspecialchars($profil['nama']); ?></h1>
                 <button class="btn-primary" onclick="window.print()">Cetak Riwayat</button>
             </div>
 

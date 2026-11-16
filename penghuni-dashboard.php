@@ -7,8 +7,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'penghuni') {
     exit;
 }
 
-$profil  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT penghuni.*, kamar.nomor_kamar, kamar.harga_sewa, kamar.fasilitas FROM penghuni JOIN kamar ON penghuni.id_kamar = kamar.id_kamar LIMIT 1"));
-$riwayat = mysqli_query($conn, "SELECT * FROM pembayaran WHERE id_penghuni = " . (int)$profil['id_penghuni'] . " ORDER BY id_bayar DESC");
+$id_penghuni = (int) $_SESSION['id_penghuni'];
+$profil  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT penghuni.*, kamar.nomor_kamar, kamar.harga_sewa, kamar.fasilitas FROM penghuni JOIN kamar ON penghuni.id_kamar = kamar.id_kamar WHERE penghuni.id_penghuni = $id_penghuni"));
+$riwayat = mysqli_query($conn, "SELECT * FROM pembayaran WHERE id_penghuni = $id_penghuni ORDER BY id_bayar DESC");
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -52,15 +53,19 @@ $riwayat = mysqli_query($conn, "SELECT * FROM pembayaran WHERE id_penghuni = " .
                         <tr><th>Bulan</th><th>Nominal Dibayar</th><th>Metode</th><th>Tanggal</th><th>Status</th></tr>
                     </thead>
                     <tbody>
-                        <?php while ($b = mysqli_fetch_assoc($riwayat)): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($b['bulan_tagihan']); ?></td>
-                            <td>Rp <?= number_format($b['jumlah_bayar'], 0, ',', '.'); ?></td>
-                            <td><?= htmlspecialchars($b['metode']); ?></td>
-                            <td><?= htmlspecialchars($b['tgl_bayar']); ?></td>
-                            <td style="font-weight:bold; color:<?= $b['status'] === 'Lunas' ? '#27ae60' : '#e74c3c'; ?>;"><?= $b['status']; ?></td>
-                        </tr>
-                        <?php endwhile; ?>
+                        <?php if (mysqli_num_rows($riwayat) > 0): ?>
+                            <?php while ($b = mysqli_fetch_assoc($riwayat)): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($b['bulan_tagihan']); ?></td>
+                                <td>Rp <?= number_format($b['jumlah_bayar'], 0, ',', '.'); ?></td>
+                                <td><?= htmlspecialchars($b['metode']); ?></td>
+                                <td><?= htmlspecialchars($b['tgl_bayar']); ?></td>
+                                <td style="font-weight:bold; color:<?= $b['status'] === 'Lunas' ? '#15803d' : '#dc2626'; ?>;"><?= $b['status']; ?></td>
+                            </tr>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <tr><td colspan="5" style="text-align:center;">Belum ada riwayat pembayaran.</td></tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
